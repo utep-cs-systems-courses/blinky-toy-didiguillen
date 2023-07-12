@@ -17,12 +17,20 @@ int main(void) {
 void greenControl(int on)
 {
   if (on) {
-    P1OUT |= LED_GREEN;
+    P1OUT |= LED_GREEN; //turn on led
   } else {
-    P1OUT &= ~LED_GREEN;
+    P1OUT &= ~LED_GREEN; //turn off led
   }
 }
 
+void redControl(int on)
+{
+  if (on) {
+    P1OUT |= LED_RED;
+  } else {
+    P1OUT &= ~LED_RED;
+  }
+}
 // blink state machine
 static int blinkLimit = 5;   //  state var representing reciprocal of duty cycle 
 void blinkUpdate() // called every 1/250s to blink with duty cycle 1/blinkLimit
@@ -32,8 +40,11 @@ void blinkUpdate() // called every 1/250s to blink with duty cycle 1/blinkLimit
   if (blinkCount >= blinkLimit) {
     blinkCount = 0;
     greenControl(1);
-  } else
+    redControl(0);
+  } else {
     greenControl(0);
+    redControl(1);
+  }
 }
 
 void oncePerSecond() // repeatedly start bright and gradually lower duty cycle, one step/sec
