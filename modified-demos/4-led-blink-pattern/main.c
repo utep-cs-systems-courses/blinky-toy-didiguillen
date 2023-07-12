@@ -19,7 +19,8 @@ int greenBlinkLimit = 0;  // duty cycle = 1/blinkLimit
 int greenBlinkCount = 5;  // cycles 0...blinkLimit-1
 int redBlinkLimit = 5;
 int redBlinkCount = 0;
-int secondCount = 0; // state var representing repeating time 0…1s
+int greenSecondCount = 0;  // state var representing repeating time 0…1s
+int redSecondCount = 0;
 
 void green_blink(void){
   greenBlinkCount--;
@@ -48,15 +49,19 @@ __interrupt_vec(WDT_VECTOR) WDT()	/* 250 interrupts/sec */
   green_blink();
 
   // measure a second
-  secondCount ++;
-  if (secondCount >= 250) {  // once each second
-    secondCount = 0;
+  greenSecondCount++;
+  redSecondCount++;
+  if (redSecondCount >= 125) {
+    redSecondCount = 0;
+    redBlinkLimit++;
+    if(redBlinkLimit >= 8)
+      redBlinkLimit = 0;
+  }
+  if (greenSecondCount >= 250) {  // once each second
+    greenSecondCount = 0;
     greenBlinkLimit--;	     // reduce duty cycle
     if (greenBlinkLimit <= -8)     // but don't let duty cycle go below 1/7.
       greenBlinkLimit = 0;
-    redBlinkLimit++;
-    if (redBlinkLimit >= 8)
-      redBlinkLimit = 0;
   }
 } 
 
