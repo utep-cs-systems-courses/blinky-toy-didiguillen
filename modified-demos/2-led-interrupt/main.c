@@ -19,7 +19,7 @@ int count = 0;
 void
 __interrupt_vec(WDT_VECTOR) WDT()	/* 250 interrupts/sec */
 {
-  if((++secondCount) == 4){ //made it blink so fast it looks dimmer
+  if((++secondCount) == 3){ //made it blink so fast it looks dimmer
     secondCount = 0;
     if((++count) == 2){
       count = 0;

@@ -5,5 +5,7 @@
 #define LED_GREEN BIT6             // P1.6
 #define LEDS (BIT0 | BIT6)
 
+void green_blink(void);
+void red_blink(void);
 
 #endif // included
