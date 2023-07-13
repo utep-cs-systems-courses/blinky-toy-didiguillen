@@ -1,8 +1,8 @@
 #include <msp430.h>
 #include "libTimer.h"
 
-#define LED_RED BIT0               // P1.0
-#define LED_GREEN BIT6             // P1.6
+#define LED_GREEN BIT0               // P1.0
+#define LED_RED BIT6             // P1.6
 #define LEDS (BIT0 | BIT6)
 
 #define SW1 BIT3		/* switch1 is p1.3 */
@@ -23,21 +23,42 @@ void main(void)
   or_sr(0x18);  // CPU off, GIE on
 } 
 
+void toggle_red(int on)
+{
+  if(on)
+    P1OUT |= LED_RED;
+  else
+    P1OUT &= ~LED_RED;
+}
+
+void toggle_green(int on)
+{
+  if(on)
+    P1OUT |= LED_GREEN;
+  else
+    P1OUT &= ~LED_GREEN;
+}
+
 void
 switch_interrupt_handler()
 {
   char p1val = P1IN;		/* switch is in P1 */
-
 /* update switch interrupt sense to detect changes from current buttons */
   P1IES |= (p1val & SWITCHES);	/* if switch up, sense down */
   P1IES &= (p1val | ~SWITCHES);	/* if switch down, sense up */
 
 /* up=red, down=green */
   if (p1val & SW1) {
-    P1OUT |= LED_RED;
-    P1OUT &= ~LED_GREEN;
+    if(P1OUT & 1){
+      toggle_green(0);
+      toggle_red(1);
+    } else {
+      toggle_red(0);
+      toggle_green(1);
+    //P1OUT &= ~LED_GREEN;
+    }
   } else {
-    P1OUT |= LED_GREEN;
+    //P1OUT |= LED_GREEN;
     P1OUT &= ~LED_RED;
   }
 }
@@ -51,3 +72,4 @@ __interrupt_vec(PORT1_VECTOR) Port_1(){
     switch_interrupt_handler();	/* single handler for all switches */
   }
 }
+
