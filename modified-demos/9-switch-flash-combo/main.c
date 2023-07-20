@@ -8,6 +8,11 @@
 #define SW1 BIT3		/* switch1 is p1.3 */
 #define SWITCHES SW1		/* only 1 switch on this board */
 
+#define BLINK1 0
+#define BLINK2 1
+#define BLINK3 2
+void blink_state(void);
+
 void switch_init() {
   P1REN |= SWITCHES;		/* enables resistors for switches */
   P1IE |= SWITCHES;		/* enable interrupts from switches */
@@ -54,12 +59,30 @@ switch_interrupt_handler()
   }
 }
 
+int countpress = 0;
+char state = BLINK1;
 
+void blink_state(void)
+{
+  switch(countpress){
+  case 1:
+    state = BLINK1;
+    break;
+  case 2:
+    state = BLINK2;
+    break;
+  default:
+    state = BLINK3;
+    countpress = 0;
+  }
+}
 /* Switch on P1 (S2) */
 void
 __interrupt_vec(PORT1_VECTOR) Port_1(){
   if (P1IFG & SWITCHES) {	      /* did a button cause this interrupt? */
     P1IFG &= ~SWITCHES;		      /* clear pending sw interrupts */
+    countpress++;
+    blink_state();
     switch_interrupt_handler();	/* single handler for all switches */
   }
 }
@@ -68,13 +91,37 @@ void
 __interrupt_vec(WDT_VECTOR) WDT()	/* 250 interrupts/sec */
 {
   static int blink_count = 0;
-  switch (blink_count) { 
-  case 6: 
-    blink_count = 0;
-    P1OUT |= LED_RED;
-    break;
-  default:
-    blink_count ++;
-    if (!buttonDown) P1OUT &= ~LED_RED; /* don't blink off if button is down */
+  if(state == BLINK1){
+    switch(blink_count){
+    case 6:
+      blink_count = 0;
+      P1OUT |= LED_RED;
+      break;
+    default:
+      blink_count++;
+      if(!buttonDown) P1OUT &= ~LED_RED;
+    }
+  }
+  else if(state == BLINK2){
+    switch(blink_count){
+    case 12:
+      blink_count = 0;
+      P1OUT |= LED_RED;
+      break;
+    default:
+      blink_count++;
+      if(!buttonDown) P1OUT &= ~LED_RED;
+    }
+  }
+  else{ //doesn't work, ask at coaching session
+    switch(blink_count){
+    case 24: 
+      blink_count = 0;
+      P1OUT |= LED_RED;
+      break;
+    default:
+      blink_count++;
+      if (!buttonDown) P1OUT &= ~LED_RED; /* don't blink off if button is down */
+    }
   }
 } 

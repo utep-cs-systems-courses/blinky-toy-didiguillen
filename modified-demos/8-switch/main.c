@@ -20,8 +20,11 @@ void main(void)
   P1OUT |= SWITCHES;		/* pull-ups for switches */
   P1DIR &= ~SWITCHES;		/* set switches' bits for input */
 
+  enableWDTInterrupts();
   or_sr(0x18);  // CPU off, GIE on
 } 
+
+int countLimit = 250;
 
 void toggle_red(int on)
 {
@@ -50,16 +53,19 @@ switch_interrupt_handler()
 /* up=red, down=green */
   if (p1val & SW1) {
     if(P1OUT & 1){
+      //toggle_green(0);
+      //toggle_red(1);
       toggle_green(0);
-      toggle_red(1);
     } else {
-      toggle_red(0);
       toggle_green(1);
+      //toggle_red(0);
+      //toggle_green(1);
     //P1OUT &= ~LED_GREEN;
     }
+    countLimit = countLimit / 2;
   } else {
     //P1OUT |= LED_GREEN;
-    P1OUT &= ~LED_RED;
+    P1OUT &= ~LED_GREEN;
   }
 }
 
@@ -73,3 +79,13 @@ __interrupt_vec(PORT1_VECTOR) Port_1(){
   }
 }
 
+int secondCount = 0;
+void
+__interrupt_vec(WDT_VECTOR) WDT()
+{
+  secondCount++;
+  if (secondCount >= countLimit) {
+    secondCount = 0;
+    P1OUT ^= LED_RED;
+  }
+}
