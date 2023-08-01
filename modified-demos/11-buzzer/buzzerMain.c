@@ -21,16 +21,25 @@ int i = 0;
 
 void __interrupt_vec(WDT_VECTOR) WDT()
 {
-  if(i = 0){
-    buzzer_set_period(9361);
-  }
+  //if(i = 0){
+  //buzzer_set_period(9361);
+  //}
   seconds++;
   if(i > 10)
     i = 0;
-  if(noteLength[i] >= seconds){
-    seconds = 0;
-    i++;
-    buzzer_set_period(notes[i]);
+  if(noteLength[i]){
+    if(seconds >= quarterNoteLength){
+      seconds = 0;
+      i++;
+      buzzer_set_period(notes[i]);
+    }
+  }
+  else{
+    if(seconds >= eighthNoteLength){
+      seconds = 0;
+      i++;
+      buzzer_set_period(notes[i]);
+    }
   }
   
 }
