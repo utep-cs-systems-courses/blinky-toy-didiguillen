@@ -3,5 +3,7 @@
 
 void buzzer_init();
 void buzzer_set_period(short cycles);
+void switch_init();
+void play_buddyHolly();
 
 #endif // included
